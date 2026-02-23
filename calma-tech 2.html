@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Calma Tech</title>
+<style>
+  :root {
+    --green-light: #d4ede1;
+    --green-mid: #a8d5ba;
+    --green-deep: #5a9e7a;
+    --green-text: #2e6b4f;
+    --white: #fafff8;
+    --cream: #f0f9f0;
+    --gray-soft: #7a9e8a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    width: 100%;
+    min-height: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--white);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-x: hidden;
+    padding: 20px 0 40px 0;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--green-light) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -30%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #e8f5d0 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 640px;
+    padding: 0 16px;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.45s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card {
+    background: white;
+    border-radius: 28px;
+    padding: 44px 40px;
+    box-shadow: 0 8px 40px rgba(90,158,122,0.15);
+  }
+
+  .welcome-inner { text-align: center; }
+
+  .cross-icon {
+    display: block;
+    margin: 0 auto 18px auto;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+  }
+
+  .app-title {
+    font-size: 2.7rem;
+    color: var(--green-text);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+    font-weight: bold;
+  }
+
+  .app-subtitle {
+    font-size: 1rem;
+    color: var(--gray-soft);
+    font-family: Arial, sans-serif;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+
+  .verse-welcome {
+    background: var(--cream);
+    border-left: 4px solid var(--green-mid);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    margin-bottom: 34px;
+    text-align: left;
+    font-style: italic;
+    color: var(--green-text);
+    font-size: 0.97rem;
+    line-height: 1.75;
+  }
+
+  .verse-ref {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: var(--green-deep);
+    display: block;
+    margin-top: 6px;
+    font-family: Arial, sans-serif;
+  }
+
+  .btn {
+    display: inline-block;
+    background: var(--green-deep);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 44px;
+    font-size: 1rem;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+    letter-spacing: 0.4px;
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+  }
+
+  .btn:hover, .btn:active {
+    background: var(--green-text);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(90,158,122,0.35);
+  }
+
+  .btn:disabled {
+    background: var(--green-mid);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .progress-bar-wrap {
+    background: var(--green-light);
+    border-radius: 50px;
+    height: 10px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green-mid), var(--green-deep));
+    border-radius: 50px;
+    transition: width 0.4s ease;
+  }
+
+  .question-num {
+    font-size: 0.78rem;
+    color: var(--gray-soft);
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-family: Arial, sans-serif;
+  }
+
+  .question-text {
+    font-size: 1.35rem;
+    color: var(--green-text);
+    line-height: 1.55;
+    margin-bottom: 26px;
+    font-weight: bold;
+  }
+
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    margin-bottom: 6px;
+  }
+
+  .option-btn {
+    background: var(--cream);
+    border: 2px solid transparent;
+    border-radius: 14px;
+    padding: 16px 20px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+    font-family: Arial, sans-serif;
+    font-size: 0.96rem;
+    color: var(--green-text);
+    line-height: 1.45;
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+    width: 100%;
+  }
+
+  .option-btn:hover, .option-btn:active {
+    border-color: var(--green-mid);
+    background: var(--green-light);
+    transform: translateX(4px);
+  }
+
+  .option-btn.selected {
+    border-color: var(--green-deep);
+    background: var(--green-light);
+    font-weight: bold;
+  }
+
+  .quiz-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 26px;
+  }
+
+  .btn-back {
+    background: none;
+    border: none;
+    color: var(--gray-soft);
+    font-family: Arial, sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 10px 4px;
+    transition: color 0.18s;
+    touch-action: manipulation;
+  }
+
+  .btn-back:hover, .btn-back:active { color: var(--green-text); }
+
+  .result-inner { text-align: center; margin-bottom: 20px; }
+
+  .result-emoji {
+    font-size: 84px;
+    display: block;
+    margin-bottom: 14px;
+    animation: pop 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+
+  @keyframes pop {
+    0%  { transform: scale(0.3); opacity: 0; }
+    80% { transform: scale(1.1); }
+    100%{ transform: scale(1);   opacity: 1; }
+  }
+
+  .result-level {
+    font-size: 1.9rem;
+    color: var(--green-text);
+    margin-bottom: 6px;
+    font-weight: bold;
+  }
+
+  .result-percent {
+    font-size: 0.98rem;
+    color: var(--gray-soft);
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+  }
+
+  .result-desc {
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 18px 20px;
+    color: var(--green-text);
+    font-size: 0.96rem;
+    line-height: 1.75;
+    margin-bottom: 18px;
+    text-align: left;
+    font-family: Arial, sans-serif;
+  }
+
+  .tip-box {
+    background: linear-gradient(135deg, var(--green-light), #e6f5ea);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+
+  .box-label {
+    font-weight: bold;
+    color: var(--green-deep);
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-family: Arial, sans-serif;
+  }
+
+  .tip-text {
+    color: var(--green-text);
+    font-size: 0.96rem;
+    line-height: 1.8;
+    font-family: Arial, sans-serif;
+  }
+
+  .verse-box {
+    background: white;
+    border: 2px solid var(--green-mid);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 26px;
+    text-align: left;
+  }
+
+  .verse-text-result {
+    font-style: italic;
+    color: var(--green-text);
+    font-size: 0.97rem;
+    line-height: 1.75;
+  }
+
+  .verse-ref-result {
+    font-style: normal;
+    font-weight: bold;
+    color: var(--green-deep);
+    font-size: 0.86rem;
+    margin-top: 8px;
+    display: block;
+    font-family: Arial, sans-serif;
+  }
+
+  .center { text-align: center; }
+
+  @media (max-width: 480px) {
+    body { padding: 14px 0 36px 0; }
+    .app  { padding: 0 12px; }
+    .card { padding: 28px 18px; border-radius: 22px; }
+    .app-title    { font-size: 2rem; }
+    .question-text{ font-size: 1.15rem; }
+    .result-emoji { font-size: 68px; }
+    .result-level { font-size: 1.5rem; }
+    .btn { padding: 14px 34px; font-size: 0.97rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- PANTALLA 1: BIENVENIDA -->
+  <div class="screen active" id="screen-welcome">
+    <div class="card">
+      <div class="welcome-inner">
+        <svg class="cross-icon" width="72" height="86" viewBox="0 0 72 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="28" y="0" width="16" height="86" rx="8" fill="#5a9e7a"/>
+          <rect x="0" y="22" width="72" height="16" rx="8" fill="#5a9e7a"/>
+        </svg>
+        <h1 class="app-title">Calma Tech</h1>
+        <p class="app-subtitle">Un espacio para conocer tu nivel de estrés<br>y encontrar paz en Dios.</p>
+        <div class="verse-welcome">
+          "Vengan a mí todos ustedes que están cansados y agobiados,
+          y yo les daré descanso."
+          <span class="verse-ref">— Mateo 11:28</span>
+        </div>
+        <button class="btn" onclick="startQuiz()">Comenzar evaluación</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 2: PREGUNTAS -->
+  <div class="screen" id="screen-quiz">
+    <div class="card">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar" style="width:20%"></div>
+      </div>
+      <p class="question-num" id="question-num">Pregunta 1 de 5</p>
+      <h2 class="question-text" id="question-text"></h2>
+      <div class="options-grid" id="options-grid"></div>
+      <div class="quiz-nav">
+        <button class="btn-back" id="btn-back" onclick="prevQuestion()">← Anterior</button>
+        <button class="btn" id="btn-next" onclick="nextQuestion()" disabled>Siguiente →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA 3: RESULTADO -->
+  <div class="screen" id="screen-result">
+    <div class="card">
+      <div class="result-inner">
+        <span class="result-emoji" id="result-emoji"></span>
+        <h2 class="result-level" id="result-level"></h2>
+        <p class="result-percent" id="result-percent"></p>
+      </div>
+      <div class="result-desc" id="result-desc"></div>
+      <div class="tip-box">
+        <p class="box-label">💪 Consejo para ti</p>
+        <p class="tip-text" id="tip-text"></p>
+      </div>
+      <div class="verse-box">
+        <p class="box-label">📖 Versículo Bíblico</p>
+        <p class="verse-text-result" id="verse-text"></p>
+        <span class="verse-ref-result" id="verse-ref"></span>
+      </div>
+      <div class="center">
+        <button class="btn" onclick="restart()">↺ Volver a evaluar</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var preguntas = [
+  {
+    texto: "¿Con qué frecuencia sientes que tienes más tareas y responsabilidades de las que puedes manejar?",
+    opciones: [
+      { texto: "Nunca: siempre mantengo el control de mis tareas.", valor: 0 },
+      { texto: "Pocas veces: generalmente me organizo sin dificultad.", valor: 1 },
+      { texto: "Con frecuencia: me cuesta seguirle el ritmo a mis obligaciones.", valor: 2 },
+      { texto: "Casi siempre: siento que mis tareas me superan constantemente.", valor: 3 }
+    ]
+  },
+  {
+    texto: "¿Cómo describirías la calidad de tu sueño en los últimos días?",
+    opciones: [
+      { texto: "Muy buena: duermo bien y me despierto con energía.", valor: 0 },
+      { texto: "Regular: a veces me cuesta dormir por pensamientos del colegio.", valor: 1 },
+      { texto: "Mala: duermo pocas horas o me despierto con preocupaciones.", valor: 2 },
+      { texto: "Pésima: casi no logro dormir, mi mente no deja de pensar.", valor: 3 }
+    ]
+  },
+  {
+    texto: "¿Cómo te sientes emocionalmente cuando piensas en tus exámenes o entregas próximas?",
+    opciones: [
+      { texto: "Tranquilo/a: me siento preparado/a y con confianza.", valor: 0 },
+      { texto: "Algo nervioso/a: siento presión normal por cumplir.", valor: 1 },
+      { texto: "Ansioso/a: dudo mucho de mi capacidad para lograrlo.", valor: 2 },
+      { texto: "Muy angustiado/a: siento que no puedo con todo y quisiera escapar.", valor: 3 }
+    ]
+  },
+  {
+    texto: "¿Con qué frecuencia experimentas síntomas físicos como dolor de cabeza, tensión muscular o cansancio injustificado?",
+    opciones: [
+      { texto: "Nunca: mi cuerpo se siente bien y descansado.", valor: 0 },
+      { texto: "Raramente: aparecen de vez en cuando sin afectarme mucho.", valor: 1 },
+      { texto: "Con frecuencia: los noto varias veces a la semana.", valor: 2 },
+      { texto: "Casi siempre: son constantes e interfieren con mi día a día.", valor: 3 }
+    ]
+  },
+  {
+    texto: "¿Cómo describes el equilibrio entre tus estudios y tu tiempo de descanso personal?",
+    opciones: [
+      { texto: "Excelente: tengo tiempo tanto para estudiar como para descansar.", valor: 0 },
+      { texto: "Aceptable: descanso algo, aunque quisiera tener más tiempo libre.", valor: 1 },
+      { texto: "Escaso: los estudios ocupan casi todo mi tiempo y energía.", valor: 2 },
+      { texto: "Inexistente: siento que no vivo, solo estudio sin ningún respiro.", valor: 3 }
+    ]
+  }
+];
+
+var niveles = [
+  {
+    minPct: 0, maxPct: 24,
+    emoji: "😊",
+    nivel: "Sin estrés significativo",
+    descripcion: "¡Excelente! Tu nivel de estrés es muy bajo. Estás manejando bien tus responsabilidades y manteniendo un buen equilibrio en tu vida. Da gracias a Dios por esta paz que tienes y sigue cultivando estos buenos hábitos.",
+    tips: [
+      "Mantén el hábito de hacer ejercicio físico regularmente: salir a caminar, correr o practicar tu deporte favorito al menos tres veces por semana te ayudará a conservar esta energía y bienestar.",
+      "Organiza tu semana con un pequeño plan de estudio. Cuando sabes exactamente qué vas a hacer cada día, la mente descansa más fácil y tu rendimiento mejora.",
+      "Dedica unos minutos cada mañana a leer un versículo bíblico y hacer una oración de gratitud. Empezar el día con Dios marca toda la diferencia."
+    ],
+    versos: [
+      { texto: "El Señor es mi pastor; nada me faltará.", ref: "Salmos 23:1" },
+      { texto: "Todo lo puedo en Cristo que me fortalece.", ref: "Filipenses 4:13" },
+      { texto: "Estad siempre gozosos. Orad sin cesar. Dad gracias en todo.", ref: "1 Tesalonicenses 5:16-18" }
+    ]
+  },
+  {
+    minPct: 25, maxPct: 49,
+    emoji: "😌",
+    nivel: "Estrés leve",
+    descripcion: "Tienes algo de estrés, lo cual es completamente normal en la etapa estudiantil. Tu cuerpo y mente están enviando pequeñas señales. Es un buen momento para aplicar hábitos saludables antes de que aumente.",
+    tips: [
+      "Practica la respiración profunda: inhala contando hasta cuatro, sostén cuatro segundos y exhala contando hasta seis. Repítelo cinco veces cada vez que sientas tensión. Es simple y muy efectivo.",
+      "Toma pausas activas de diez minutos entre horas de estudio: estira los brazos, camina por casa o sube y baja escaleras. Tu cerebro se recarga y trabaja mucho mejor después de moverse.",
+      "Habla con alguien de confianza sobre cómo te sientes: un amigo, un familiar o tu líder de jóvenes. Compartir la carga con otros aligera el corazón."
+    ],
+    versos: [
+      { texto: "No se inquieten por nada; más bien, en toda ocasión, con oración y ruego, presenten sus peticiones a Dios.", ref: "Filipenses 4:6" },
+      { texto: "Encomienda al Señor tus afanes, y él te sostendrá.", ref: "Salmos 55:22" },
+      { texto: "Vengan a mí todos ustedes que están cansados y agobiados, y yo les daré descanso.", ref: "Mateo 11:28" }
+    ]
+  },
+  {
+    minPct: 50, maxPct: 74,
+    emoji: "😟",
+    nivel: "Estrés moderado",
+    descripcion: "Tu nivel de estrés es notable. Tu cuerpo y tus emociones están bajo presión, y es importante que tomes acción hoy. No estás solo/a — Dios está contigo y hay pasos concretos que puedes dar ahora mismo.",
+    tips: [
+      "Haz ejercicio físico al menos veinte minutos al día: trota, realiza sentadillas, baila o salta la cuerda. El ejercicio libera endorfinas que reducen el estrés naturalmente. ¡Es un regalo que Dios puso en tu cuerpo!",
+      "Anota en un cuaderno las tres cosas que más te preocupan y escribe junto a cada una: ¿Qué sí puedo hacer hoy? Enfocarte en lo que controlas calma la ansiedad de forma inmediata.",
+      "Antes de dormir, entrega cada preocupación a Dios en oración, ya sea en voz alta o por escrito. No tienes que cargar solo/a lo que Él quiere llevar por ti."
+    ],
+    versos: [
+      { texto: "Confía en el Señor con todo tu corazón, y no te apoyes en tu propio entendimiento.", ref: "Proverbios 3:5" },
+      { texto: "El que habita al abrigo del Altísimo se acoge a la sombra del Todopoderoso.", ref: "Salmos 91:1" },
+      { texto: "No temas, porque yo estoy contigo; no te angusties, porque yo soy tu Dios.", ref: "Isaías 41:10" }
+    ]
+  },
+  {
+    minPct: 75, maxPct: 100,
+    emoji: "😰",
+    nivel: "Estrés alto",
+    descripcion: "Estás viviendo un nivel de estrés muy alto. Tus fuerzas están al límite y eso es una señal seria de que necesitas parar, pedir ayuda y descansar. Dios no te llamó a agotarte. Por favor, habla con alguien de confianza hoy.",
+    tips: [
+      "Detente. Hoy, haz una sola cosa a la vez. Antes de continuar, cierra los ojos y respira hondo y lentamente diez veces. Dios creó el descanso como algo necesario, no como una debilidad.",
+      "Habla hoy mismo con un adulto de confianza: tus padres, un maestro, tu pastor o líder juvenil. No tienes que enfrentar esto solo/a. Dios usa personas para ayudarnos en los momentos difíciles.",
+      "Durante los próximos tres días, sal a caminar quince minutos cada mañana mientras oras en voz alta. El movimiento físico y la oración juntos son muy poderosos para calmar la mente y el espíritu."
+    ],
+    versos: [
+      { texto: "Él da fuerzas al cansado, y aumenta el poder del débil.", ref: "Isaías 40:29" },
+      { texto: "Echando toda vuestra ansiedad sobre él, porque él tiene cuidado de vosotros.", ref: "1 Pedro 5:7" },
+      { texto: "El Señor peleará por vosotros, y vosotros estaréis tranquilos.", ref: "Éxodo 14:14" }
+    ]
+  }
+];
+
+var preguntaActual = 0;
+var respuestas = [null, null, null, null, null];
+
+function startQuiz() {
+  preguntaActual = 0;
+  respuestas = [null, null, null, null, null];
+  mostrarPantalla('screen-quiz');
+  renderPregunta();
+}
+
+function renderPregunta() {
+  var q = preguntas[preguntaActual];
+  document.getElementById('question-num').textContent = 'Pregunta ' + (preguntaActual + 1) + ' de 5';
+  document.getElementById('question-text').textContent = q.texto;
+  document.getElementById('progress-bar').style.width = (((preguntaActual + 1) / 5) * 100) + '%';
+
+  var grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+
+  for (var i = 0; i < q.opciones.length; i++) {
+    var btn = document.createElement('button');
+    btn.className = 'option-btn' + (respuestas[preguntaActual] === i ? ' selected' : '');
+    btn.textContent = q.opciones[i].texto;
+    btn.setAttribute('data-idx', i);
+    btn.onclick = function () {
+      seleccionarOpcion(parseInt(this.getAttribute('data-idx')));
+    };
+    grid.appendChild(btn);
+  }
+
+  var btnNext = document.getElementById('btn-next');
+  btnNext.disabled = (respuestas[preguntaActual] === null);
+  btnNext.textContent = preguntaActual === 4 ? 'Ver mi resultado' : 'Siguiente';
+
+  document.getElementById('btn-back').style.visibility = preguntaActual === 0 ? 'hidden' : 'visible';
+}
+
+function seleccionarOpcion(idx) {
+  respuestas[preguntaActual] = idx;
+  var botones = document.querySelectorAll('.option-btn');
+  for (var i = 0; i < botones.length; i++) {
+    botones[i].classList.remove('selected');
+  }
+  botones[idx].classList.add('selected');
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQuestion() {
+  if (respuestas[preguntaActual] === null) return;
+  if (preguntaActual < 4) {
+    preguntaActual++;
+    renderPregunta();
+  } else {
+    mostrarResultado();
+  }
+}
+
+function prevQuestion() {
+  if (preguntaActual > 0) {
+    preguntaActual--;
+    renderPregunta();
+  }
+}
+
+function mostrarResultado() {
+  var totalPuntos = 0;
+  for (var i = 0; i < preguntas.length; i++) {
+    if (respuestas[i] !== null) {
+      totalPuntos += preguntas[i].opciones[respuestas[i]].valor;
+    }
+  }
+  var maxPuntos = preguntas.length * 3;
+  var porcentaje = Math.round((totalPuntos / maxPuntos) * 100);
+
+  var nivel = niveles[niveles.length - 1];
+  for (var j = 0; j < niveles.length; j++) {
+    if (porcentaje >= niveles[j].minPct && porcentaje <= niveles[j].maxPct) {
+      nivel = niveles[j];
+      break;
+    }
+  }
+
+  var tipIdx   = Math.floor(Math.random() * nivel.tips.length);
+  var versoIdx = Math.floor(Math.random() * nivel.versos.length);
+
+  document.getElementById('result-emoji').textContent   = nivel.emoji;
+  document.getElementById('result-level').textContent   = nivel.nivel;
+  document.getElementById('result-percent').textContent = 'Nivel de estrés: ' + porcentaje + '%';
+  document.getElementById('result-desc').textContent    = nivel.descripcion;
+  document.getElementById('tip-text').textContent       = nivel.tips[tipIdx];
+  document.getElementById('verse-text').textContent     = '"' + nivel.versos[versoIdx].texto + '"';
+  document.getElementById('verse-ref').textContent      = '— ' + nivel.versos[versoIdx].ref;
+
+  mostrarPantalla('screen-result');
+}
+
+function restart() {
+  mostrarPantalla('screen-welcome');
+}
+
+function mostrarPantalla(id) {
+  var pantallas = document.querySelectorAll('.screen');
+  for (var i = 0; i < pantallas.length; i++) {
+    pantallas[i].classList.remove('active');
+  }
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
